@@ -36,7 +36,14 @@ function esc(s) {
 }
 function initFilters() {
   const locs=[...new Set(meds.map(m=>m.location))].sort((a,b)=>a.localeCompare(b,"ru"));
-  document.getElementById("locationFilter").innerHTML += locs.map(x=>`<option>${esc(x)}</option>`).join("");
+  document.getElementById("locationFilter").innerHTML += locs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+
+  const actualPurposes=[...new Set(meds.map(m=>m.purpose_group).filter(Boolean))];
+  const orderedPurposes=[
+    ...purposeOrder.filter(x=>actualPurposes.includes(x)),
+    ...actualPurposes.filter(x=>!purposeOrder.includes(x)).sort((a,b)=>a.localeCompare(b,"ru"))
+  ];
+  document.getElementById("purposeFilter").innerHTML += orderedPurposes.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
 }
 function summary() {
   const st = meds.map(statusOf);
@@ -74,11 +81,15 @@ function card(m) {
 }
 function render() {
   const q=search.value.trim().toLowerCase();
+  const purpose=purposeFilter.value;
   const loc=locationFilter.value;
   const sf=statusFilter.value;
   let items=meds.filter(m=>{
     const hay=[m.name,m.dose,m.active,m.purpose,m.purpose_group,m.mechanism_group,m.mechanism,m.location,m.expiry,m.note].join(" ").toLowerCase();
-    return (!q || hay.includes(q)) && (!loc || m.location===loc) && (!sf || statusOf(m)===sf);
+    return (!q || hay.includes(q)) &&
+      (!purpose || m.purpose_group===purpose) &&
+      (!loc || m.location===loc) &&
+      (!sf || statusOf(m)===sf);
   });
 
   items.sort((a,b)=>a.name.localeCompare(b.name,"ru"));
@@ -106,5 +117,8 @@ function render() {
 }
 purposeBtn.onclick=()=>{mode="purpose";purposeBtn.classList.add("active");mechanismBtn.classList.remove("active");render();};
 mechanismBtn.onclick=()=>{mode="mechanism";mechanismBtn.classList.add("active");purposeBtn.classList.remove("active");render();};
-search.oninput=render; locationFilter.onchange=render; statusFilter.onchange=render;
+search.oninput=render;
+purposeFilter.onchange=render;
+locationFilter.onchange=render;
+statusFilter.onchange=render;
 initFilters(); summary(); render();
