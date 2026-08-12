@@ -1,5 +1,18 @@
 let mode = "purpose";
 
+const purposeOrder = [
+  "Боль и температура",
+  "Аллергия",
+  "Дыхательные пути",
+  "ЖКТ",
+  "Инфекции",
+  "Мочевыводящие пути",
+  "Сердце и сосуды",
+  "Нервная система и мышцы",
+  "Антисептики и обработка",
+  "Перевязка и расходники"
+];
+
 function parseDate(s) {
   if (!s) return null;
   const d = new Date(s + "T23:59:59");
@@ -22,7 +35,7 @@ function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function initFilters() {
-  const locs=[...new Set(meds.map(m=>m.location))].sort();
+  const locs=[...new Set(meds.map(m=>m.location))].sort((a,b)=>a.localeCompare(b,"ru"));
   document.getElementById("locationFilter").innerHTML += locs.map(x=>`<option>${esc(x)}</option>`).join("");
 }
 function summary() {
@@ -67,10 +80,27 @@ function render() {
     const hay=[m.name,m.dose,m.active,m.purpose,m.purpose_group,m.mechanism_group,m.mechanism,m.location,m.expiry,m.note].join(" ").toLowerCase();
     return (!q || hay.includes(q)) && (!loc || m.location===loc) && (!sf || statusOf(m)===sf);
   });
+
+  items.sort((a,b)=>a.name.localeCompare(b.name,"ru"));
+
   const key=mode==="purpose"?"purpose_group":"mechanism_group";
   const groups={};
   items.forEach(m => (groups[m[key]] ??= []).push(m));
-  const names=Object.keys(groups).sort((a,b)=>a.localeCompare(b,"ru"));
+
+  let names=Object.keys(groups);
+  if (mode === "purpose") {
+    names.sort((a,b)=>{
+      const ai = purposeOrder.indexOf(a);
+      const bi = purposeOrder.indexOf(b);
+      if (ai === -1 && bi === -1) return a.localeCompare(b,"ru");
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+  } else {
+    names.sort((a,b)=>a.localeCompare(b,"ru"));
+  }
+
   if(!names.length) {content.innerHTML='<div class="empty">Ничего не найдено.</div>'; return;}
   content.innerHTML = names.map(g => `<section class="group"><h2 class="group-title">${esc(g)}</h2><div class="cards">${groups[g].map(card).join("")}</div></section>`).join("");
 }
