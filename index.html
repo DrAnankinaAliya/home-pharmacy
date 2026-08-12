@@ -23,6 +23,7 @@
   <div class="controls">
     <div class="row">
       <input class="search" id="search" placeholder="Найти: ибупрофен, кашель, нижний ярус…">
+      <select id="purposeFilter"><option value="">Все назначения</option></select>
       <select id="locationFilter"><option value="">Все места хранения</option></select>
       <select id="statusFilter">
         <option value="">Все сроки</option>
@@ -31,7 +32,7 @@
         <option value="good">Годен</option>
         <option value="unknown">Нужно уточнить</option>
       </select>
-      <span style="display:flex;align-items:center;font-size:13px;color:#6f6b66;font-weight:700;">Сортировать:</span>
+      <span style="display:flex;align-items:center;font-size:13px;color:#6f6b66;font-weight:700;">Группировать:</span>
       <div class="toggle"><button id="purposeBtn" class="active">По назначению</button><button id="mechanismBtn">По механизму</button></div>
     </div>
   </div>
