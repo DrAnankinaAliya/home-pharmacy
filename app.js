@@ -37,13 +37,6 @@ function esc(s) {
 function initFilters() {
   const locs=[...new Set(meds.map(m=>m.location))].sort((a,b)=>a.localeCompare(b,"ru"));
   document.getElementById("locationFilter").innerHTML += locs.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
-
-  const actualPurposes=[...new Set(meds.map(m=>m.purpose_group).filter(Boolean))];
-  const orderedPurposes=[
-    ...purposeOrder.filter(x=>actualPurposes.includes(x)),
-    ...actualPurposes.filter(x=>!purposeOrder.includes(x)).sort((a,b)=>a.localeCompare(b,"ru"))
-  ];
-  document.getElementById("purposeFilter").innerHTML += orderedPurposes.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
 }
 function summary() {
   const st = meds.map(statusOf);
